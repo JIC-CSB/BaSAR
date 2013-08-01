@@ -25,6 +25,9 @@ require(orthopolynom)
 }
 
 .BSA.samplepoint <- function(tpoints, omega, nbackg) {
+  # Sample points from model functions
+  #
+  # nbackg - number of background functions (here, Legendre polynomials)
     tscale <- tpoints[length(tpoints)] - tpoints[1]
     f <- cbind(sin(tpoints * omega), cos(tpoints * omega))
     if (nbackg>0) {
@@ -72,6 +75,12 @@ require(orthopolynom)
 }
 
 .BSA.prob <- function(data, fvalues, maxlogST) {
+  # Calculate student T-distribution
+  #
+  # arguments:
+  #   data - the time series as a 1d vector
+  #   fvalues - sampled points from the function
+  #   maxlogST, max value of logST if computed already, else 0
     ndata <- nrow(fvalues)
     nfunc <- ncol(fvalues)
 
@@ -83,7 +92,7 @@ require(orthopolynom)
 
     factor = 1.0 - nfunc*meanhsq/ndata/meandsq
 
-    if(abs(factor < 1.0e-14)) {
+    if((abs(factor) < 1.0e-14)) {
         factor = .Machine$double.xmin
     }
 
@@ -105,6 +114,9 @@ require(orthopolynom)
 }
 
 .BSA.post1 <- function(data, tpoints, start, stop, nsamples, nbackg, normp) {
+  # Calculate the posterior before normalisation
+  #
+  # nbackg - the number of background functions
     start2 <- ((2*pi)/stop)
     stop2 <- ((2*pi)/start)
     omega <- numeric()
@@ -266,14 +278,20 @@ require(orthopolynom)
 }
 
 
-
-
 ##################################################################################
 # User-availble functions for posterior
 ##################################################################################
 
 BaSAR.post <- function(data, start, stop, nsamples, nbackg, tpoints) {
-  # Calculate a norlised posterior of the frequency in the chosen range
+  # Calculate a normalised posterior of the frequency in the chosen range
+  #
+  # Arguments:
+  #  data - the data as a 1d vector
+  #  start - the lower limit of the period of interest, in seconds
+  #  stop - the upper limit of the period of interest in seconds
+  #  nsamples - the number of samples within the interval
+  #  nbackg - the number of background functions to be added to the model
+  #  tpoints - a vector of the time points
     omega_range <- ((2*pi)/start) - ((2*pi)/stop)
     r = .BSA.post1(data, tpoints, start, stop, nsamples, nbackg, 0)
     r = .BSA.post1(data, tpoints, start, stop, nsamples, nbackg, max(r$logp))
@@ -320,6 +338,10 @@ BaSAR.fine <- function(data, start, stop, nsamples, nbackg, tpoints) {
 ##################################################################################
 
 .BSA.ratiocal <- function(data, tpoints, start, stop, nsamples, nbackg) {
+  # Calculate terms in model comparison to be used in ratio
+  #
+  # nbackg - number of background functions to use
+  
     omega_range = ((2*pi)/start) - ((2*pi)/stop)
     ndata = length(data)
 
@@ -409,15 +431,16 @@ BaSAR.fine <- function(data, start, stop, nsamples, nbackg, tpoints) {
 }
 
 BaSAR.modelratio <- function(data, start, stop, nsamples, nbackg1, nbackg2, tpoints) {
-	if (nbackg1 < nbackg2)	{
-		model1 <- nbackg1
-	    model2 <- nbackg2
-	}
-	else {
-		model2 <- nbackg1
-	    model1 <- nbackg2
-	}
-            ret = .BSA.ratiocal(data, tpoints, start, stop, nsamples, model1)
+  # Compare models with added background trends, and calculate model ratios
+  if (nbackg1 < nbackg2)	{
+    model1 <- nbackg1
+    model2 <- nbackg2
+  }
+  else {
+    model2 <- nbackg1
+    model1 <- nbackg2
+  }
+  ret = .BSA.ratiocal(data, tpoints, start, stop, nsamples, model1)
             GL1_1 = ret$GL1
             GL2_1 = ret$GL2
             GL31_1 = ret$GL31
@@ -439,7 +462,7 @@ BaSAR.modelratio <- function(data, start, stop, nsamples, nbackg1, nbackg2, tpoi
             if (ratio>1) {
                 ret = BaSAR.post(data, start, stop, nsamples, model1, tpoints)
             } else {
-				ret = BaSAR.post(data, start, stop, nsamples, model2, tpoints)
+              ret = BaSAR.post(data, start, stop, nsamples, model2, tpoints)
             }
 	
     return(list(normp=ret$normp, omega=ret$omega,stats=ret$res, modelratio=ratio))
