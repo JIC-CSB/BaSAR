@@ -273,6 +273,7 @@ require(orthopolynom)
 ##################################################################################
 
 BaSAR.post <- function(data, start, stop, nsamples, nbackg, tpoints) {
+  # Calculate a norlised posterior of the frequency in the chosen range
     omega_range <- ((2*pi)/start) - ((2*pi)/stop)
     r = .BSA.post1(data, tpoints, start, stop, nsamples, nbackg, 0)
     r = .BSA.post1(data, tpoints, start, stop, nsamples, nbackg, max(r$logp))
@@ -493,8 +494,9 @@ BaSAR.local <- function(data, start, stop, nsamples, tpoints, nbackg, window) {
 ##################################################################################
 
 .BSA.prior <- function(omega_min, omega_max, dim, n) {
-    x = runif(n, omega_min, omega_max)
-    return(x)
+  # Generate uniform prior of n samples between omega_min and omega_max
+  x = runif(n, omega_min, omega_max)
+  return(x)
 }
 
 .BSA.post_nested <- function(data, omega, tpoints, nbackg, dim, normp) {
@@ -629,15 +631,16 @@ BaSAR.local <- function(data, start, stop, nsamples, tpoints, nbackg, window) {
     mperiod = r$mperiod
     stperiod = r$stperiod
 
-    return(list(samples=samples,weight=samplesLLHoods,logZ=logZ, logZerror=logZerror, momega=momega, stomega=stomega, mperiod=mperiod, stperiod=stperiod))
+    return(list(samples=samples,weight=samplesLLHoods,logZ=logZ, logZerror=logZerror, momega=momega, stomega=stomega, mperiod=mperiod, stperiod=stperiod, posts=posts))
 }
 
 BaSAR.nest <- function(data, start, stop, nsamples, nbackg, tpoints, nposts) {
-	start2 <- ((2*pi)/stop)
-    stop2 <- ((2*pi)/start)
-    r = .BSA.evidence(data, start2, stop2, 1, nsamples, nbackg, tpoints, nposts)
+  # nposts - number of samples drawn from the posterior
+  start2 <- ((2*pi)/stop)
+  stop2 <- ((2*pi)/start)
+  r = .BSA.evidence(data, start2, stop2, 1, nsamples, nbackg, tpoints, nposts)
 
-    return(list(samples=r$samples,weights=r$weight,logZ=r$logZ,logZerror=r$logZerror,momega=r$momega,stomega=r$stomega))
+  return(list(samples=r$samples,weights=r$weight,logZ=r$logZ,logZerror=r$logZerror,momega=r$momega,stomega=r$stomega))
 }
 
 ##################################################################################
