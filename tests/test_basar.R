@@ -36,7 +36,7 @@ test_that(".BSA.prior works", {
   expect_that(min(test_prior) > 100, is_true())
 })
 
-test_that(".BSA.post works", {
+test_that(".BaSAR.post works", {
   tpoints <- seq(from=1, to=200, length=200)
   dpoints <- sin(0.5 * tpoints)
 
@@ -73,4 +73,15 @@ test_that(".BSA.samplepoint works", {
   expect_that(all(f[,1] == 1), is_true())
   expect_equal(sum(f[,2]), 1.882, tolerance=0.001)
   expect_equal(numeric(f[,2] %*% f[,3]), numeric(0.978), tolerance=0.001)
+})
+
+context("Testing BaSAR.auto")
+
+test_that("BaSAR.auto works", {
+  tpoints <- seq(from=1, to=200, length=200)
+  dpoints <- sin(0.5 * tpoints) - tpoints ^ 2 * 0.005 + 0.1 * rnorm(200, 0, 1)
+
+  r <- BaSAR.auto(dpoints, 6, 600, 100, 4, tpoints)
+
+  expect_equal(r$stats$omega_mean, 0.5, tolerance=0.01)
 })

@@ -325,8 +325,14 @@ BaSAR.post <- function(data, start, stop, nsamples, nbackg, tpoints) {
   #  nsamples - the number of samples within the interval
   #  nbackg - the number of background functions to be added to the model
   #  tpoints - a vector of the time points
-    omega_range <- ((2*pi)/start) - ((2*pi)/stop)
-    r = .BSA.post1(data, tpoints, start, stop, nsamples, nbackg, 0)
+  #
+  # Returns:
+  #   omega - the range of frequencies sampled
+  #   normp - the normalised posterior probability at that value of omega
+  #   stats - statistics abdout the distribution
+  
+  omega_range <- ((2*pi)/start) - ((2*pi)/stop)
+  r = .BSA.post1(data, tpoints, start, stop, nsamples, nbackg, 0)
     r = .BSA.post1(data, tpoints, start, stop, nsamples, nbackg, max(r$logp))
     p = r$p
     omega = r$omega
@@ -425,15 +431,17 @@ BaSAR.fine <- function(data, start, stop, nsamples, nbackg, tpoints) {
 }
 
 .BSA.modelratio_auto <- function(data, start, stop, nsamples, nbackg, tpoints) {
+  # Function to keep adding background functions until a model ratio of over 1 is
+  # obtained.
   for(i in c(0:nbackg)) {
     if (i==nbackg) {
-            r = BaSAR.post(data, start, stop, nsamples, i, tpoints)
-            normp = r$normp
-            omega = r$omega
-            res = r$res
-			model = c("max reached:",i)
-        } else {
-            ret = .BSA.ratiocal(data, tpoints, start, stop, nsamples, i)
+      r = BaSAR.post(data, start, stop, nsamples, i, tpoints)
+      normp = r$normp
+      omega = r$omega
+      res = r$res
+      model = c("max reached:",i)
+    } else {
+      ret = .BSA.ratiocal(data, tpoints, start, stop, nsamples, i)
             GL1_1 = ret$GL1
             GL2_1 = ret$GL2
             GL31_1 = ret$GL31
@@ -453,9 +461,9 @@ BaSAR.fine <- function(data, start, stop, nsamples, nbackg, tpoints) {
             ratio = 0
             ratio = ((GL1_1*GL2_1*GL4_1)/(GL1*GL2*GL4))*GL3;
             if (ratio>1) {
-                ret = BaSAR.post(data, start, stop, nsamples, i, tpoints)
-				model = i
-				return(list(normp=ret$normp, omega=ret$omega,stats=ret$res,ratio=ratio,model=model))
+              ret = BaSAR.post(data, start, stop, nsamples, i, tpoints)
+              model = i
+              return(list(normp=ret$normp, omega=ret$omega,stats=ret$stats,ratio=ratio,model=model))
             } 
         }
     }
@@ -503,6 +511,20 @@ BaSAR.modelratio <- function(data, start, stop, nsamples, nbackg1, nbackg2, tpoi
 
 
 BaSAR.auto <- function(data, start, stop, nsamples, nbackg, tpoints) {
+  # Function for automatic model comparison - keeps adding background functions
+  # and comparing model ratio
+  #
+  # Arguments:
+  #   data - the data as 1d vector of time points
+  #
+  # Returns:
+  #   omega - a 1d vector of frequency values
+  #   normp - the value of the normalised probability at the freqency given by
+  #           omega
+  #   stats - statistics about the distribution
+  #   modelratio - the model ratio
+  #   model - the number of models (in this backgound Legendre polynomials
+  #           added
     r = .BSA.modelratio_auto(data, start, stop, nsamples, nbackg, tpoints)
     normp = r$normp
     omega = r$omega
