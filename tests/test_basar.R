@@ -3,12 +3,29 @@ source('BaSAR.R')
 
 context("Testing BaSAR helper functions")
 
-test_that("orthonormalize works", {
+test_that(".BSA.orthonormalize works", {
   test_m <- matrix(seq(1:4), 2)
   r <- .BSA.orthonormalize(test_m)
 
   expect_equal(matrix(r$evalues, 1), matrix(cbind(29.866, 0.134), 1),
                tolerance=0.001)
+
+  # Generate a 10x3 matrix of uniformly distributed random numbers
+  test_m <- matrix(runif(30), 10)
+  r <- .BSA.orthonormalize(test_m)$ortha
+  # Check output vectors are normalised
+  for (i in 1:3) {
+    expect_equal(as.numeric(r[,i] %*% r[,i]), 1)
+  }
+  # Check vectors are orthogonal
+  for (i in 1:3) {
+    for (j in 1:3) {
+      if (i != j) {
+        expect_equal(as.numeric(r[,i] %*% r[,j]), 0)
+      }
+    }
+  }
+
 })
   
 test_that(".BSA.prior works", {
@@ -47,4 +64,13 @@ test_that(".BSA.legendre works", {
 
   expect_equal(numeric(leg.5 %*% leg.6), numeric(0))
 })
+
+test_that(".BSA.samplepoint works", {
+  tpoints <- seq(0, 9, length=10)
   
+  f <- .BSA.samplepoint(tpoints, 0.5, 0)
+  expect_equal(dim(f), c(10, 3))
+  expect_that(all(f[,1] == 1), is_true())
+  expect_equal(sum(f[,2]), 1.882, tolerance=0.001)
+  expect_equal(numeric(f[,2] %*% f[,3]), numeric(0.978), tolerance=0.001)
+})

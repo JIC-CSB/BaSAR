@@ -27,12 +27,10 @@ require(orthopolynom)
   #
   # Returns:
   #  leg2 - a 1d vector
-  
-  leg  <- 0
-  leg2 <- 0
+
   leg <- legendre.polynomials(n,normalized=F)
   leg2 <- predict(leg[[length(leg)]],x)
-    return(leg2)
+  return(leg2)
 }
 
 .BSA.samplepoint <- function(tpoints, omega, nbackg) {
@@ -42,6 +40,9 @@ require(orthopolynom)
   #   tpoints - the time points at which the data are samples
   #   omega - the frequency of interest
   #   nbackg - number of background functions (here, Legendre polynomials)
+  #
+  # Returns:
+  #  f - a matrix                                         
     tscale <- tpoints[length(tpoints)] - tpoints[1]
     f <- cbind(sin(tpoints * omega), cos(tpoints * omega))
     if (nbackg>0) {
@@ -61,6 +62,9 @@ require(orthopolynom)
   #
   # Arguments:
   #   a - a matrix
+  #
+  # Returns:
+  #   ortha - 
 
     eig <- eigen(t(a) %*% a)
 
@@ -95,10 +99,13 @@ require(orthopolynom)
 .BSA.prob <- function(data, fvalues, maxlogST) {
   # Calculate student T-distribution
   #
-  # arguments:
+  # Arguments:
   #   data - the time series as a 1d vector
   #   fvalues - sampled points from the function
   #   maxlogST, max value of logST if computed already, else 0
+  #
+  # Returns:
+  #   
     ndata <- nrow(fvalues)
     nfunc <- ncol(fvalues)
 
