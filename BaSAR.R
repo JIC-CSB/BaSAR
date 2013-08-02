@@ -17,6 +17,17 @@ require(orthopolynom)
 }
 
 .BSA.legendre <- function(n, x) {
+  # Calculate the values of the nth Legendre polynomial at each point in the 1d
+  # vector x.
+  #
+  # Arguments:
+  #  n - (integer) the order of the Legendre polynomial to evaluate
+  #  x - a 1d vector points at which to evaluate the polynomial, each point
+  #      should be in the range -1 <= x <= 1
+  #
+  # Returns:
+  #  leg2 - a 1d vector
+  
   leg  <- 0
   leg2 <- 0
   leg <- legendre.polynomials(n,normalized=F)
@@ -27,7 +38,10 @@ require(orthopolynom)
 .BSA.samplepoint <- function(tpoints, omega, nbackg) {
   # Sample points from model functions
   #
-  # nbackg - number of background functions (here, Legendre polynomials)
+  # Arguments:
+  #   tpoints - the time points at which the data are samples
+  #   omega - the frequency of interest
+  #   nbackg - number of background functions (here, Legendre polynomials)
     tscale <- tpoints[length(tpoints)] - tpoints[1]
     f <- cbind(sin(tpoints * omega), cos(tpoints * omega))
     if (nbackg>0) {
@@ -43,6 +57,10 @@ require(orthopolynom)
 }
 
 .BSA.orthonormalize <- function(a) {
+  # Orthonormalise the input matrix
+  #
+  # Arguments:
+  #   a - a matrix
 
     eig <- eigen(t(a) %*% a)
 
@@ -116,7 +134,15 @@ require(orthopolynom)
 .BSA.post1 <- function(data, tpoints, start, stop, nsamples, nbackg, normp) {
   # Calculate the posterior before normalisation
   #
-  # nbackg - the number of background functions
+  # Arguments:
+  #   data - the data as a 1d vector
+  #   tpoints - the data of time points at which the data are sampled
+  #   start - the lower bound of the period of interest, in seconds
+  #   stop- the upper bound of the period of interest, in seconds
+  #   nsamples - the number of samples in the data
+  #   nbackg - the number of background functions
+  #   normp = the normalised logp value
+  
     start2 <- ((2*pi)/stop)
     stop2 <- ((2*pi)/start)
     omega <- numeric()
