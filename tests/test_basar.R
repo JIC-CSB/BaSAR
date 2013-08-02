@@ -85,3 +85,16 @@ test_that("BaSAR.auto works", {
 
   expect_equal(r$stats$omega_mean, 0.5, tolerance=0.01)
 })
+
+context("Testing BaSAR.fine")
+
+test_that("BaSAR.fine works", {
+  # Create time series with omega = 0.5 and add noise
+  tpoints <- seq(from=1, to=200, length=200)
+  r1 <- rnorm(200, 0, 1)
+  r2 <- rnorm(200, 0, 1)
+  dpoints <- sin(0.5 * tpoints + 0.1 * (0.5-r1)) + 0.7 * r2
+  # Plot time series
+  #plot(dpoints, type="l", col="blue", xlab="t", ylab="d(t)")
+  r <- BaSAR.fine(dpoints, 6, 600, 100, 0, tpoints)
+})
