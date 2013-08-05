@@ -36,15 +36,6 @@ test_that(".BSA.prior works", {
   expect_that(min(test_prior) > 100, is_true())
 })
 
-test_that(".BaSAR.post works", {
-  tpoints <- seq(from=1, to=200, length=200)
-  dpoints <- sin(0.5 * tpoints)
-
-  r <- BaSAR.post(dpoints, 6, 600, 100, 0, tpoints)
-
-  # We should have recovered 0.5 as the frequency
-  expect_equal(r$stats$omega_mean, 0.5, tolerance=0.01)
-})
 
 test_that(".BSA.legendre works", {
   x.values <- seq(-1, 1, length=5)
@@ -75,6 +66,18 @@ test_that(".BSA.samplepoint works", {
   expect_equal(numeric(f[,2] %*% f[,3]), numeric(0.978), tolerance=0.001)
 })
 
+context("Testing BaSAR.post")
+
+test_that(".BaSAR.post works", {
+  tpoints <- seq(from=1, to=200, length=200)
+  dpoints <- sin(0.5 * tpoints)
+
+  r <- BaSAR.post(dpoints, 6, 600, 100, 0, tpoints)
+
+  # We should have recovered 0.5 as the frequency
+  expect_equal(r$stats$omega_mean, 0.5, tolerance=0.01)
+})
+
 context("Testing BaSAR.auto")
 
 test_that("BaSAR.auto works", {
@@ -97,4 +100,6 @@ test_that("BaSAR.fine works", {
   # Plot time series
   #plot(dpoints, type="l", col="blue", xlab="t", ylab="d(t)")
   r <- BaSAR.fine(dpoints, 6, 600, 100, 0, tpoints)
+  #plot(r$omega, r$normp, xlim=c(0:1), type="h", col="red", ylab="PDF", xlab=expression(omega))
+  expect_equal(r$stats$omega_mean, 0.5, tolerance=0.01)  
 })

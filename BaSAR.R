@@ -319,17 +319,17 @@ BaSAR.post <- function(data, start, stop, nsamples, nbackg, tpoints) {
   # Calculate a normalised posterior of the frequency in the chosen range
   #
   # Arguments:
-  #  data - the data as a 1d vector
-  #  start - the lower limit of the period of interest, in seconds
-  #  stop - the upper limit of the period of interest in seconds
-  #  nsamples - the number of samples within the interval
-  #  nbackg - the number of background functions to be added to the model
-  #  tpoints - a vector of the time points
+  #   data - the data as a 1d vector
+  #   start - the lower limit of the period of interest, in seconds
+  #   stop - the upper limit of the period of interest in seconds
+  #   nsamples - the number of samples within the interval
+  #   nbackg - the number of background functions to be added to the model
+  #   tpoints - a vector of the time points
   #
   # Returns:
   #   omega - the range of frequencies sampled
   #   normp - the normalised posterior probability at that value of omega
-  #   stats - statistics abdout the distribution
+  #   stats - statistics about the distribution
   
   omega_range <- ((2*pi)/start) - ((2*pi)/stop)
   r = .BSA.post1(data, tpoints, start, stop, nsamples, nbackg, 0)
@@ -347,29 +347,45 @@ BaSAR.post <- function(data, start, stop, nsamples, nbackg, tpoints) {
 
 
 BaSAR.fine <- function(data, start, stop, nsamples, nbackg, tpoints) {
-    omega_range <- ((2*pi)/start) - ((2*pi)/stop)
-    omegaN = omega_range * 0.05
-    r = .BSA.post1(data, tpoints, start, stop, nsamples, nbackg, 0)
-    r = .BSA.post1(data, tpoints, start, stop, nsamples, nbackg, max(r$logp))
-    p = r$p
-    maxp = 0
-    for (j in c(1:nsamples)) {
-        if (p[j] > maxp) {
-            maxp = p[j]
-            guess = r$omega[j]
-        }
-    }
-    normp = .BSA.normalise(data, r$omega, r$p, nsamples, nbackg, max(r$logp), omega_range)
-    s = .BSA.amoeba(1000, guess, omegaN*2, tpoints, nbackg, data)
-    maxlogp = s$logp
-    omega1 = s$omega1
+  # Finer grained BSA. First finds peak in posterior with BSA.post, then samples
+  # around that area using a downhill simplex optimiser
+  #
+  # Arguments:
+  #   data - the data as a 1d vector
+  #   start - the lower limit of the period of interest, in seconds
+  #   stop - the upper limit of the period of interest in seconds
+  #   nsamples - the number of samples within the interval
+  #   nbackg - the number of background functions to be added to the model
+  #   tpoints - a vector of the time points
+  #
+  # Returns:
+  #   omega - the range of frequencies sampled
+  #   normp - the normalised posterior probability at that value of omega
+  #   stats - statistics about the distribution
 
-    r = BaSAR.post(data, (2*pi)/(omega1+omegaN), (2*pi)/(omega1-omegaN), nsamples, nbackg, tpoints)
-    normp = r$normp
-    omega = r$omega
-    res = r$res
-    
-    return(list(normp=normp, omega=omega, stats=res))
+  omega_range <- ((2*pi)/start) - ((2*pi)/stop)
+  omegaN = omega_range * 0.05
+  r = .BSA.post1(data, tpoints, start, stop, nsamples, nbackg, 0)
+  r = .BSA.post1(data, tpoints, start, stop, nsamples, nbackg, max(r$logp))
+  p = r$p
+  maxp = 0
+  for (j in c(1:nsamples)) {
+    if (p[j] > maxp) {
+      maxp = p[j]
+      guess = r$omega[j]
+    }
+  }
+  normp = .BSA.normalise(data, r$omega, r$p, nsamples, nbackg, max(r$logp), omega_range)
+  s = .BSA.amoeba(1000, guess, omegaN*2, tpoints, nbackg, data)
+  maxlogp = s$logp
+  omega1 = s$omega1
+
+  r <- BaSAR.post(data, (2*pi)/(omega1+omegaN), (2*pi)/(omega1-omegaN), nsamples, nbackg, tpoints)
+  normp = r$normp
+  omega = r$omega
+  stats = r$stats
+  
+  return(list(normp=normp, omega=omega, stats=stats))
 }
 
 ##################################################################################
