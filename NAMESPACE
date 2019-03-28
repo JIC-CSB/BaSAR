@@ -1,0 +1,4 @@
+exportPattern("^[[:alpha:]]+")
+importFrom("stats", "approx", "predict", "rnorm", "runif")
+importFrom("orthopolynom", "legendre.polynomials")
+import("polynom")
