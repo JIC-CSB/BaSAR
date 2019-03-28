@@ -4,9 +4,30 @@ BaSAR Bayesian Spectral Analysis in R
 Installation
 ------------
 
+To install, use the R devtools package. If you don't already have it, you can install it with:
+
+```R
+install.packages("devtools")
+```
+
+and load it with:
+
+```R
+library(devtools)
+```
+
+Then you can install BaSAR with:
+
+```R
+install_github("JIC-CSB/BaSAR")
+```
+
 Use
 ---
 
+
+Citing
+------
 
 Please cite our paper:
 
