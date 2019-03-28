@@ -30,7 +30,7 @@ The functions output the posterior over omega (angular frequency). If the user w
 \author{
 Emma Granqvist, Matthew Hartley and Richard J Morris.
 
-Maintainer: Emma Granqvist \email{\code{emma.granqvist@jic.ac.uk}}
+Maintainer: Matthew Hartley \email{\code{matthew.hartley@jic.ac.uk}}
 }
 \references{
 Bretthorst, G. L. (1988) Bayesian spectrum analysis and parameter estimation. \emph{Lecture notes 
